@@ -14,10 +14,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import com.example.pawtrack2.contract.DashboardContract
 import com.example.pawtrack2.model.SharedPreferencesAccountRepository
 import com.example.pawtrack2.presenter.DashboardPresenter
+import com.example.pawtrack2.model.FirebaseDeviceRepository
+import com.example.pawtrack2.viewmodel.DashboardViewModel
 
 @Composable
 fun DashboardScreen(
@@ -43,6 +47,10 @@ fun DashboardScreen(
 
     val repository = remember { SharedPreferencesAccountRepository(context) }
     val presenter = remember { DashboardPresenter(repository) }
+    val deviceViewModel = remember {
+        DashboardViewModel(FirebaseDeviceRepository(), DEVICE_ID)
+    }
+    val deviceState by deviceViewModel.uiState.collectAsState()
 
     val view = remember {
         object : DashboardContract.View {
@@ -56,6 +64,10 @@ fun DashboardScreen(
         presenter.attachView(view)
         presenter.loadDashboard()
         onDispose { presenter.detachView() }
+    }
+    DisposableEffect(deviceViewModel) {
+        deviceViewModel.startObserving()
+        onDispose { deviceViewModel.stopObserving() }
     }
 
     Scaffold { paddingValues ->
@@ -102,6 +114,40 @@ fun DashboardScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("External LED", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            when {
+                                deviceState.errorMessage != null -> "Error: ${deviceState.errorMessage}"
+                                !deviceState.status.online -> "Device offline"
+                                deviceState.isSending -> "Sending command..."
+                                else -> if (deviceState.status.ledOn) "On" else "Off"
+                            },
+                            fontSize = 13.sp
+                        )
+                        Text(
+                            "Firebase: devices/$DEVICE_ID/status",
+                            fontSize = 11.sp
+                        )
+                    }
+                    Switch(
+                        checked = deviceState.status.ledOn,
+                        enabled = deviceState.status.online && !deviceState.isSending,
+                        onCheckedChange = deviceViewModel::setLed
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             InfoCard(
                 title = "📍 Location",
                 value = "GPS Active",
@@ -140,6 +186,9 @@ fun DashboardScreen(
                     )
                 }
             }
+
         }
     }
 }
+
+private const val DEVICE_ID = "esp32-pawtrack"
