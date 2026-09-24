@@ -133,10 +133,6 @@ fun DashboardScreen(
                             },
                             fontSize = 13.sp
                         )
-                        Text(
-                            "Firebase: devices/$DEVICE_ID/status",
-                            fontSize = 11.sp
-                        )
                     }
                     Switch(
                         checked = deviceState.status.ledOn,
