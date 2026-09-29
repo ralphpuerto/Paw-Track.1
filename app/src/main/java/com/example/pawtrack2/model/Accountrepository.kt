@@ -3,7 +3,7 @@ package com.example.pawtrack2.model
 import android.content.Context
 
 /**
- * Abstraction over account persistence. This is the Model layer in MVP:
+ * This is the Model layer in MVP:
  * presenters depend on this interface, never on SharedPreferences directly,
  * so the persistence mechanism can be swapped (e.g. for a database or a
  * fake in tests) without touching any presenter or view code.
