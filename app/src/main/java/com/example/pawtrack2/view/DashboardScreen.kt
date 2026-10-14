@@ -34,7 +34,8 @@ import com.example.pawtrack2.presenter.DashboardPresenter
 
 @Composable
 fun DashboardScreen(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onOpenPetLocation: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -104,8 +105,9 @@ fun DashboardScreen(
 
             InfoCard(
                 title = "📍 Location",
-                value = "GPS Active",
-                description = "Location data available"
+                value = "Waiting for GPS",
+                description = "Tap to view the map",
+                onClick = onOpenPetLocation
             )
 
             Spacer(modifier = Modifier.height(12.dp))
