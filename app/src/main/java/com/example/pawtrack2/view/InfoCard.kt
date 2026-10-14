@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,9 +23,14 @@ import androidx.compose.ui.unit.sp
 fun InfoCard(
     title: String,
     value: String,
-    description: String
+    description: String,
+    onClick: (() -> Unit)? = null
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+
+    Card(modifier = cardModifier) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold)
 
