@@ -39,8 +39,13 @@ fun PawTrackApp() {
 
         "dashboard" -> {
             DashboardScreen(
-                onLogout = { currentScreen = "login" }
+                onLogout = { currentScreen = "login" },
+                onOpenPetLocation = { currentScreen = "pet-location" }
             )
+        }
+
+        "pet-location" -> {
+            PetLocationScreen(onBack = { currentScreen = "dashboard" })
         }
     }
 }
